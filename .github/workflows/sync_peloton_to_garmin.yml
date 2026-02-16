@@ -78,13 +78,21 @@ jobs:
     - name: Run P2G Sync
       shell: bash
       run: |
-          /app/PelotonToGarmin.Console \
+          set -e
+          ls -la /app
+          echo "----"
+          find /app -maxdepth 3 -type f \( -name "*Peloton*Garmin*.dll" -o -name "*Console*.dll" \) -print
+          echo "----"
+          DLL_PATH="$(find /app -maxdepth 3 -type f \( -name "*Peloton*Garmin*.dll" -o -name "*Console*.dll" \) | head -n 1)"
+          echo "Using DLL: $DLL_PATH"
+          dotnet "$DLL_PATH" \
             --configurationFile "/app/configuration.local.json" \
             --outputDirectory "/app/output" \
             --pelotonUsername "${{ secrets.PELOTON_USERNAME }}" \
             --pelotonPassword "${{ secrets.PELOTON_PASSWORD }}" \
             --garminUsername "${{ secrets.GARMIN_USERNAME }}" \
             --garminPassword "${{ secrets.GARMIN_PASSWORD }}"
+
 
 
     - name: ⤴ Upload output directory
@@ -94,6 +102,7 @@ jobs:
         name: output
         path: ${{ env.OUTPUT_DIR }}
         if-no-files-found: error
+
 
 
 
