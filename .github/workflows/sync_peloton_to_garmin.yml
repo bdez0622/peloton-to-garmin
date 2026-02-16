@@ -32,7 +32,7 @@ jobs:
 
     - name: 🗃 Create config file
       env:
-        DEFAULT_WORKOUT_NUM: 25
+        DEFAULT_WORKOUT_NUM: 5
       run: |
         cat <<EOT > /app/configuration.local.json 
         {
@@ -54,17 +54,12 @@ jobs:
             }
           },
           "Peloton": {
-            "Email": "${{ secrets.PELOTON_USERNAME }}",
-            "Password": "${{ secrets.PELOTON_PASSWORD }}",
-            "NumWorkoutsToDownload": ${{ github.event.inputs.workoutsToDownload || env.DEFAULT_WORKOUT_NUM }}
+            "NumWorkoutsToDownload": ${{ github.event.inputs.workoutsToDownload || env.DEFAULT_WORKOUT_NUM }},
           },
           "Garmin": {
-            "Email": "${{ secrets.GARMIN_USERNAME }}",
-            "Password": "${{ secrets.GARMIN_PASSWORD }}",
             "Upload": true,
             "FormatToUpload": "fit"
           },
-
           "Observability": {
             "Prometheus": {
               "Enabled": false
@@ -80,13 +75,16 @@ jobs:
         }
         EOT
     
-    - name: Run P2G Sync
-      shell: bash
-      run: |
-          set -e
-          dotnet /app/ConsoleClient.dll \
-            --configurationFile "/app/configuration.local.json" \
-            --outputDirectory "/app/output" \
+    - name: ▶ Run P2G Sync
+      run: /app/ConsoleClient
+      if: ${{ env.P2G_PELOTON__EMAIL && env.P2G_PELOTON__PASSWORD && env.P2G_GARMIN__EMAIL && env.P2G_GARMIN__PASSWORD }}
+      working-directory: /app
+      env:
+        P2G_PELOTON__EMAIL: ${{ secrets.P2G_PELOTON__EMAIL }}
+        P2G_PELOTON__PASSWORD: ${{ secrets.P2G_PELOTON__PASSWORD }}
+        P2G_GARMIN__EMAIL: ${{ secrets.P2G_GARMIN__EMAIL }}
+        P2G_GARMIN__PASSWORD: ${{ secrets.P2G_GARMIN__PASSWORD }}
+        TZ: America/Chicago
 
     - name: ⤴ Upload output directory
       uses: actions/upload-artifact@v4
@@ -95,9 +93,3 @@ jobs:
         name: output
         path: ${{ env.OUTPUT_DIR }}
         if-no-files-found: error
-
-
-
-
-
-
