@@ -75,15 +75,16 @@ jobs:
         }
         EOT
     
-    - name: ▶ Run P2G Sync
+    - name: Run P2G Sync
+      shell: bash
       run: |
-    /app/PelotonToGarmin.Console \
-      --configurationFile /app/configuration.local.json \
-      --outputDirectory /app/output \
-      --pelotonUsername "${{ secrets.PELOTON_USERNAME }}" \
-      --pelotonPassword "${{ secrets.PELOTON_PASSWORD }}" \
-      --garminUsername "${{ secrets.GARMIN_USERNAME }}" \
-      --garminPassword "${{ secrets.GARMIN_PASSWORD }}"
+          /app/PelotonToGarmin.Console \
+            --configurationFile "/app/configuration.local.json" \
+            --outputDirectory "/app/output" \
+            --pelotonUsername "${{ secrets.PELOTON_USERNAME }}" \
+            --pelotonPassword "${{ secrets.PELOTON_PASSWORD }}" \
+            --garminUsername "${{ secrets.GARMIN_USERNAME }}" \
+            --garminPassword "${{ secrets.GARMIN_PASSWORD }}"
 
 
     - name: ⤴ Upload output directory
@@ -93,5 +94,6 @@ jobs:
         name: output
         path: ${{ env.OUTPUT_DIR }}
         if-no-files-found: error
+
 
 
