@@ -54,12 +54,17 @@ jobs:
             }
           },
           "Peloton": {
-            "NumWorkoutsToDownload": ${{ github.event.inputs.workoutsToDownload || env.DEFAULT_WORKOUT_NUM }},
+            "Email": "${{ secrets.PELOTON_USERNAME }}",
+            "Password": "${{ secrets.PELOTON_PASSWORD }}",
+            "NumWorkoutsToDownload": ${{ github.event.inputs.workoutsToDownload || env.DEFAULT_WORKOUT_NUM }}
           },
           "Garmin": {
+            "Email": "${{ secrets.GARMIN_USERNAME }}",
+            "Password": "${{ secrets.GARMIN_PASSWORD }}",
             "Upload": true,
             "FormatToUpload": "fit"
           },
+
           "Observability": {
             "Prometheus": {
               "Enabled": false
@@ -79,17 +84,9 @@ jobs:
       shell: bash
       run: |
           set -e
-          ls -la /app
           dotnet /app/ConsoleClient.dll \
             --configurationFile "/app/configuration.local.json" \
             --outputDirectory "/app/output" \
-            --pelotonUsername "${{ secrets.PELOTON_USERNAME }}" \
-            --pelotonPassword "${{ secrets.PELOTON_PASSWORD }}" \
-            --garminUsername "${{ secrets.GARMIN_USERNAME }}" \
-            --garminPassword "${{ secrets.GARMIN_PASSWORD }}"
-
-
-
 
     - name: ⤴ Upload output directory
       uses: actions/upload-artifact@v4
@@ -98,6 +95,7 @@ jobs:
         name: output
         path: ${{ env.OUTPUT_DIR }}
         if-no-files-found: error
+
 
 
 
